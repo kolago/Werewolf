@@ -20,7 +20,7 @@ namespace Database
         WelcomeToAsylum = 2,
         [Display(Name = "Alzheimer's Patient"), Description("Play a game with an amnesia language pack")]
         AlzheimerPatient = 3,
-        [Display(Name = "O HAI DER!"), Description("Play a game with Para's secret account (not @para949)")]
+        [Display(Name = "O HAI DER!"), Description("Play a game with Shanghai ENL spiritual leader @daiat9")]
         OHAIDER = 4,
         [Display(Name = "Spy vs Spy"), Description("Play a game in secret mode (no role reveal)")]
         SpyVsSpy = 5,

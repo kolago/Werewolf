@@ -26,30 +26,27 @@ namespace Werewolf_Control
         [Attributes.Command(Trigger = "donate")]
         public static void Donate(Update u, string[] args)
         {
-            //Bot.Api.SendTextMessageAsync(u.Message.Chat.Id, 
-            //    "Want to help keep Werewolf online? Please donate to:\n" +
-            //    "•PayPal: PayPal.me/greywolfdevelopment\n" +
-            //    "•Bitcoin: 13QvBKfAattcSxSsW274fbgnKU5ASpnK3A" +
-            //    "\n\nDonations help us pay to keep the expensive servers running and the game online. Every donation you make helps to keep us going for another month. For more information please contact @werewolfsupport", ParseMode.Html, true);
-            var menu = new Menu();
-            if (u.Message.Chat.Type == ChatType.Private)
-            {
-#if RELEASE
-                menu.Buttons.Add(InlineKeyboardButton.WithCallbackData("Telegram", "donatetg"));
-                menu.Buttons.Add(InlineKeyboardButton.WithCallbackData("Xsolla", "xsolla"));
-#else
-                menu.Buttons.Add(InlineKeyboardButton.WithUrl("Telegram", $"https://t.me/werewolfbot?start=donatetg"));
-                menu.Buttons.Add(InlineKeyboardButton.WithUrl("Xsolla", $"https://t.me/werewolfbot?start=xsolla"));
-#endif
-            }
-            else
-            {
-                menu.Buttons.Add(InlineKeyboardButton.WithUrl("Telegram", $"https://t.me/werewolfbot?start=donatetg"));
-                menu.Buttons.Add(InlineKeyboardButton.WithUrl("Xsolla", $"https://t.me/werewolfbot?start=xsolla"));
-            }
-            var markup = menu.CreateMarkupFromMenu();
-            var txt = $"Want to help keep Werewolf Moderator online? Donate now and gets: {"Custom gifs".ToBold()} and {"Badges".ToBold()}!\n\nClick the button below to donate!!\n\nMore Info: https://telegra.ph/Custom-Gif-Packs-and-Donation-Levels-06-27";
-            Bot.Api.SendTextMessageAsync(u.Message.Chat.Id, txt, replyMarkup: markup, parseMode: ParseMode.Html, disableWebPagePreview: true);
+            Bot.Api.SendTextMessageAsync(u.Message.Chat.Id,
+                "Want to help keep Shanghai ENL werewolf online? Please donate to kolago@gmail.com via Alipay.", ParseMode.Html, disableWebPagePreview: true);
+            //            var menu = new Menu();
+            //            if (u.Message.Chat.Type == ChatType.Private)
+            //            {
+            //#if RELEASE
+            //                menu.Buttons.Add(InlineKeyboardButton.WithCallbackData("Telegram", "donatetg"));
+            //                menu.Buttons.Add(InlineKeyboardButton.WithCallbackData("Xsolla", "xsolla"));
+            //#else
+            //                menu.Buttons.Add(InlineKeyboardButton.WithUrl("Telegram", $"https://t.me/werewolfbot?start=donatetg"));
+            //                menu.Buttons.Add(InlineKeyboardButton.WithUrl("Xsolla", $"https://t.me/werewolfbot?start=xsolla"));
+            //#endif
+            //            }
+            //            else
+            //            {
+            //                menu.Buttons.Add(InlineKeyboardButton.WithUrl("Telegram", $"https://t.me/werewolfbot?start=donatetg"));
+            //                menu.Buttons.Add(InlineKeyboardButton.WithUrl("Xsolla", $"https://t.me/werewolfbot?start=xsolla"));
+            //            }
+            //            var markup = menu.CreateMarkupFromMenu();
+            //            var txt = $"Want to help keep Werewolf Moderator online? Donate now and gets: {"Custom gifs".ToBold()} and {"Badges".ToBold()}!\n\nClick the button below to donate!!\n\nMore Info: https://telegra.ph/Custom-Gif-Packs-and-Donation-Levels-06-27";
+            //            Bot.Api.SendTextMessageAsync(u.Message.Chat.Id, txt, replyMarkup: markup, parseMode: ParseMode.Html, disableWebPagePreview: true);
         }
 
         [Attributes.Command(Trigger = "customgif")]

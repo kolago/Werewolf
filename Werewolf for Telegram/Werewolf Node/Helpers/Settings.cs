@@ -133,7 +133,7 @@ namespace Werewolf_Node
             AugurConversionChance = 40,
 #endif
 
-            GameJoinTime = 180,
+            GameJoinTime = 86400,
             MaxJoinTime = 300;
 
 
