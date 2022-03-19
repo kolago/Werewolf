@@ -154,5 +154,54 @@ namespace Werewolf_Control
             reply += "/aboutAugur - " + GetLocaleString("Augur", lang) + "\n";
             Send(reply, update.Message.From.Id);
         }
+
+        [Command(Trigger = "sop")]
+        public static void SOP(Update update, string[] args)
+        {
+            var reply = @"Joe Meng 姐夫:
+对于新来的朋友的一些说明（AKA. 暴民村庄生存手册）：
+
+SOP=Standard Operating Procedure=标准操作流程：先搞C开头，鸭子头像的，一共有两只（clanma，Curry），这两只是老司机。还有一个叫鸭先知的也是个老司机。总之和鸭沾上边的一般都要小心。
+
+「鴨先知不管好人壞人基本上都說真話，只有皮匠時會說一些謊」——鸭先知自己说的。
+
+cloud和tosaka是夫妻对咬党，坏人可以利用一下他们。
+fruittree是桃子，切桃子很好吃！
+
+BarbellChyan是饺子，很好吃！
+
+YOYO人称大姐姐，崇明岛黑社会大姐大，有长达30米的大砍刀，能不搞她尽量不搞她。
+27一米八，别的不重要。
+24是本先知，别的不重要。
+杀帅票冷是最大的错误。
+
+人生目标水果树不在大家都会迷茫失去方向
+（这条划掉，xiaolu妹子向前看……水果无法回应你呀～
+（27死的比水果树还早的话凶手一定就是水果树（27能活到最后一定是坏人啊！
+记得给冬生（winterborn）发个419的红包，因为他是专业技师，上门服务，童叟无欺，价格公道！
+
+另有诗曰：血盆大口菲丽希（phillis），狼人村长卡咪咪（kmm），看着诚恳是OC（Ocydia）默默杀人小雪梨（Sherry/sherry33），能说相声杰瑞米（Jeremy）。
+
+小鹿（xiaolu）视桃子为人生（投票）目标，请记住！
+桃子只喜欢票北月，因为杀帅票冷的传统，北月的头像经常是很帅的妹子～ps：xiaolu啊，北月是180长腿大帅哥啊～
+
+歌润（green）经常杀我，所以是坏坏的；
+d4（d4ntee）经常杀我，所以是坏坏的；
+
+最后，别忘了，姐夫在（一文在），赢得快！
+
+好了其他人我实在总结 不了了，大家将就着看看吧。";
+            try
+            {
+                var result = Bot.Api.SendTextMessageAsync(update.Message.From.Id, reply).Result;
+                if (update.Message.Chat.Type != ChatType.Private)
+                    Send(GetLocaleString("SentPrivate", GetLanguage(update.Message.From.Id)), update.Message.Chat.Id);
+            }
+            catch (Exception e)
+            {
+                RequestPM(update.Message.Chat.Id);
+                return;
+            }
+        }
     }
 }
