@@ -412,7 +412,7 @@ namespace Werewolf_Control
                 else
                 {
                     db.Database.ExecuteSqlCommand(
-                        $"INSERT INTO NotifyGame VALUES ({update.Message.From.Id}, {id})");
+                        $"INSERT INTO NotifyGames VALUES ({update.Message.From.Id}, {id})");
                     db.SaveChanges();
                     Send(GetLocaleString("AddedToWaitList", grp.Language, grp.Name.ToBold()),
                         update.Message.From.Id, customMenu: button);

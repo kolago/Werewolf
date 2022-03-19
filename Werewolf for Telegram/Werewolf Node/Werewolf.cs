@@ -507,7 +507,7 @@ namespace Werewolf_Node
                 IsInitializing = true;
 
                 Thread.Sleep(2000); //wait for last second joins
-                CleanupButtons();
+                //CleanupButtons();
                 //check we have enough players...
                 if (Players.Count < Settings.MinPlayers)
                 {
@@ -609,7 +609,7 @@ namespace Werewolf_Node
 
                     GameId = db.Games.Where(x => x.GroupId == ChatId).OrderByDescending(x => x.Id).FirstOrDefault()?.Id ?? 0;
 
-                    db.Database.ExecuteSqlCommand($"DELETE FROM NotifyGame WHERE GroupId = {ChatId}");
+                    db.Database.ExecuteSqlCommand($"DELETE FROM NotifyGames WHERE GroupId = {ChatId}");
                 }
                 IsInitializing = false;
 
@@ -4863,7 +4863,7 @@ namespace Werewolf_Node
                     SendWithQueue(customwins.ElementAt(Program.R.Next(customwins.Count())).Value);
                 //Program.Bot.SendTextMessage(ChatId, "[Enjoy playing? Support the developers and get some swag!](https://teespring.com/stores/werewolf-for-telegram)", parseMode: ParseMode.Markdown, disableWebPagePreview: true);
                 UpdateAchievements();
-                UpdateGroupRanking();
+                //UpdateGroupRanking();
                 //if (ChatId == -1001094614730)
                 //{
                 //    foreach (var p in Players.Where(x => x.IsDead))

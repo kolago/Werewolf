@@ -16,17 +16,13 @@ namespace Werewolf_Control.Helpers
 
         internal static long[] Devs =
         {
-            129046388,  //Para
-            133748469,  //reny
-            142032675,  //Para 2
-            295152997,  //Ludwig
-            106665913,  //Jeff
+            218741677,  //kuake
         };
 
         internal static long[] LangAdmins =
         {
-            267376056,  //Florian
-            654995039,  //Cordarion
+            218741677,  //Florian
+
         };
 
         internal static bool IsGroupAdmin(Update update)
