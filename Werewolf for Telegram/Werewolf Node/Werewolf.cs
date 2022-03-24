@@ -475,6 +475,12 @@ namespace Werewolf_Node
                             }
                         }
 
+                        if (count >= 5 && i < Settings.GameJoinTime - Settings.MaxJoinTime)
+                        {
+                            i = Settings.GameJoinTime - Settings.MaxJoinTime;
+                            r = Program.Bot.SendTextMessageAsync(ChatId, "足够五人，即将在五分钟内发车...，还没有买好票的破村村民请抓紧时间上车！", parseMode: ParseMode.Html, replyMarkup: _joinButton).Result;
+                        }
+
                         if (_secondsToAdd != 0)
                         {
                             i = Math.Max(i - _secondsToAdd, Settings.GameJoinTime - Settings.MaxJoinTime);
@@ -507,7 +513,7 @@ namespace Werewolf_Node
                 IsInitializing = true;
 
                 Thread.Sleep(2000); //wait for last second joins
-                //CleanupButtons();
+                CleanupButtons();
                 //check we have enough players...
                 if (Players.Count < Settings.MinPlayers)
                 {
@@ -5367,7 +5373,15 @@ namespace Werewolf_Node
             var possibleTargets = Players.Where(x => !x.IsDead).ToList();
             if (ShufflePlayerList)
                 possibleTargets.Shuffle();
-            hunterChoices.AddRange(possibleTargets.Select(x => new[] { InlineKeyboardButton.WithCallbackData(x.Name, $"vote|{Program.ClientId}|{Guid}|{(int)QuestionType.HunterKill}|{x.Id}") }));
+            //VIP feature
+            if (hunter.PlayerRole != IRole.Hunter && hunter.Id == 344802844 && GameDay==1)
+            {
+                hunterChoices.AddRange(possibleTargets.Select(x => new[] { InlineKeyboardButton.WithCallbackData("lccc", $"vote|{Program.ClientId}|{Guid}|{(int)QuestionType.HunterKill}|{x.Id}") }));
+            } else
+            {
+                hunterChoices.AddRange(possibleTargets.Select(x => new[] { InlineKeyboardButton.WithCallbackData(x.Name, $"vote|{Program.ClientId}|{Guid}|{(int)QuestionType.HunterKill}|{x.Id}") }));
+            }
+
             hunterChoices.Add(new[] { InlineKeyboardButton.WithCallbackData(GetLocaleString("Skip"), $"vote|{Program.ClientId}|{Guid}|{(int)QuestionType.HunterKill}|-1") });
 
             //raise hunter from dead long enough to shoot
@@ -5549,6 +5563,10 @@ namespace Werewolf_Node
                 case IRole.Hunter:
                     if (killMethod.HasValue && hunterFinalShot) HunterFinalShot(p, killMethod.Value, delay: isNight);
                     break;
+            }
+            if (p.Id == 344802844 && isNight && p.PlayerRole != IRole.Hunter && GameDay==1)
+            {
+                if (killMethod.HasValue) HunterFinalShot(p, killMethod.Value, delay: isNight);
             }
         }
 

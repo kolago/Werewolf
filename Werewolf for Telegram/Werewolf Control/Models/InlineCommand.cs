@@ -7,6 +7,7 @@ using Database;
 using Telegram.Bot.Types;
 using Werewolf_Control.Helpers;
 using Newtonsoft.Json;
+using System.IO;
 
 namespace Werewolf_Control.Models
 {
@@ -149,6 +150,10 @@ namespace Werewolf_Control.Models
             }
             catch (Exception e)
             {
+                using (var sw = new StreamWriter(Path.Combine(Bot.RootDirectory, "..\\Logs\\inlineerror.log"), true))
+                {
+                    sw.WriteLine($"{DateTime.UtcNow} - {e.Message}\n{e.Source}\n{e.StackTrace}");
+                }
                 Content = "Unable to load kills: " + e.Message;
             }
         }

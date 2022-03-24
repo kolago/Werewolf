@@ -57,8 +57,10 @@ namespace Werewolf_Control.Helpers
         public static List<string> LoversWin = new List<string> { "BQADBAAD8hUAAhYYZAeHmbRRzioXXQI", "BQADBAADYAMAAkMdZAfR4qo8c95FGgI" };
 #elif RELEASE
         public static List<string> VillagerDieImages = new List<string> { "CgADBAADc2sAAqMeZAdCOJCA-3WqqwI", "CgADBAAD2WkAAtkZZAcFH2xk8VqfjgI", "CgADBAADxmoAAo4bZAeMyqeIJb5U2AI", "CgADBAADlWsAAgYdZAe12V70EI6cowI" };
-        public static List<string> WolfWin = new List<string> { "CgADBAAD0WsAAjgdZAeHgZGsasnpGQI", "CgADBAAD3moAAkUaZAd88vHN9plYowI" };
-        public static List<string> WolvesWin = new List<string> { "CgADBAAD2GsAAvgdZAejE-0eBt22BgI", "CgADBAAD3wMAAlsZZAd3Vsnpg3sxWQI" , "CgADBAADImsAAjIbZAea9taGpilfIAI"};
+        //public static List<string> WolfWin = new List<string> { "CgADBAAD0WsAAjgdZAeHgZGsasnpGQI", "CgADBAAD3moAAkUaZAd88vHN9plYowI" };
+        //public static List<string> WolvesWin = new List<string> { "CgADBAAD2GsAAvgdZAejE-0eBt22BgI", "CgADBAAD3wMAAlsZZAd3Vsnpg3sxWQI" , "CgADBAADImsAAjIbZAea9taGpilfIAI"};
+        public static List<string> WolfWin = new List<string> { "CgACAgUAAxkBAAEMPBFiNs6NKWbcBirecm-0RXSuzJm2FwACsAQAApKWuFX8V2dsHwVJ_SME", "CgACAgQAAxkBAAEMPvNiNzxy9_S-PJwunA-nHyK2b2GqjAACEQMAAu2CvVJIhk1OP5KEyCME" };
+        public static List<string> WolvesWin = new List<string> { "CgACAgUAAxkBAAEMPBNiNs6bDKLz8Zktk5E2s1uGejpQVAACsQQAApKWuFWVSS09U4k-RyME" };
         public static List<string> VillagersWin = new List<string> { "CgADBAADNGwAAvEcZAcGdLCMhOMG8gI" };
         public static List<string> NoWinner = new List<string> { "CgADBAADBwUAAn0aZAeUzqKubLZQhAI", "CgADBAAD_GoAAq0XZAdSVdbMZBIEgAI" };
         public static List<string> StartGame = new List<string> { "CgADBAADf6QAAtEYZAdLYoKqTq7H9gI", "CgADBAADvKUAAvocZAdyaDieWimZggI" };
