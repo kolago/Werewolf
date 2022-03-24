@@ -76,33 +76,6 @@ namespace Database
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<getRoles_Result>("getRoles", groupNameParameter);
         }
     
-        public virtual ObjectResult<PlayerMostKilled_Result> PlayerMostKilled(Nullable<long> pid)
-        {
-            var pidParameter = pid.HasValue ?
-                new ObjectParameter("pid", pid) :
-                new ObjectParameter("pid", typeof(long));
-    
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<PlayerMostKilled_Result>("PlayerMostKilled", pidParameter);
-        }
-    
-        public virtual ObjectResult<PlayerMostKilledBy_Result> PlayerMostKilledBy(Nullable<long> pid)
-        {
-            var pidParameter = pid.HasValue ?
-                new ObjectParameter("pid", pid) :
-                new ObjectParameter("pid", typeof(long));
-    
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<PlayerMostKilledBy_Result>("PlayerMostKilledBy", pidParameter);
-        }
-    
-        public virtual ObjectResult<PlayerRoles_Result> PlayerRoles(Nullable<long> pid)
-        {
-            var pidParameter = pid.HasValue ?
-                new ObjectParameter("pid", pid) :
-                new ObjectParameter("pid", typeof(long));
-    
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<PlayerRoles_Result>("PlayerRoles", pidParameter);
-        }
-    
         public virtual ObjectResult<GlobalDay1Death_Result1> GlobalDay1Death()
         {
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GlobalDay1Death_Result1>("GlobalDay1Death");
@@ -197,6 +170,33 @@ namespace Database
                 new ObjectParameter("groupid", typeof(long));
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<Nullable<int>>("GetGroupIdleKills24Hours", useridParameter, groupidParameter);
+        }
+    
+        public virtual ObjectResult<PlayerMostKilled_Result> PlayerMostKilled(Nullable<long> pid)
+        {
+            var pidParameter = pid.HasValue ?
+                new ObjectParameter("pid", pid) :
+                new ObjectParameter("pid", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<PlayerMostKilled_Result>("PlayerMostKilled", pidParameter);
+        }
+    
+        public virtual ObjectResult<PlayerMostKilledBy_Result> PlayerMostKilledBy(Nullable<long> pid)
+        {
+            var pidParameter = pid.HasValue ?
+                new ObjectParameter("pid", pid) :
+                new ObjectParameter("pid", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<PlayerMostKilledBy_Result>("PlayerMostKilledBy", pidParameter);
+        }
+    
+        public virtual ObjectResult<PlayerRoles_Result> PlayerRoles(Nullable<long> pid)
+        {
+            var pidParameter = pid.HasValue ?
+                new ObjectParameter("pid", pid) :
+                new ObjectParameter("pid", typeof(long));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<PlayerRoles_Result>("PlayerRoles", pidParameter);
         }
     }
 }
