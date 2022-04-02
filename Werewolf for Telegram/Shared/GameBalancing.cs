@@ -41,6 +41,7 @@ namespace Shared
             var balanced = false;
             var attempts = 0;
             var nonVgRoles = new[] { IRole.Cultist, IRole.SerialKiller, IRole.Tanner, IRole.Wolf, IRole.AlphaWolf, IRole.Sorcerer, IRole.WolfCub, IRole.Lycan, IRole.Thief, IRole.SnowWolf, IRole.Arsonist };
+            var nonVgRolesWithArsonist = new[] { IRole.SerialKiller, IRole.Tanner, IRole.Wolf, IRole.AlphaWolf, IRole.WolfCub, IRole.Lycan, IRole.Thief};
 
             do
             {
@@ -100,6 +101,14 @@ namespace Shared
 
                 if (rolesToAssign.Contains(IRole.SerialKiller) && rolesToAssign.Contains(IRole.Arsonist))
                     balanced = balanced && burningOverkill;
+
+                if (rolesToAssign.Contains(IRole.Arsonist) && !rolesToAssign.Intersect(nonVgRoles.ToList()).Any())
+                {
+                    //var tmpRole = rolesToAssign.SkipWhile(x => x != IRole.Arsonist).Skip(1).DefaultIfEmpty(rolesToAssign[0]).FirstOrDefault();
+                    int arsonistIndex = rolesToAssign.IndexOf(IRole.Arsonist);
+                    IRole tmpRole = arsonistIndex + 1 > rolesToAssign.Count() ? rolesToAssign[0] : rolesToAssign[arsonistIndex + 1];
+                    rolesToAssign[rolesToAssign.IndexOf(tmpRole)] = nonVgRolesWithArsonist[R.Next(nonVgRolesWithArsonist.Count())];
+                }
 
                 //the roles to assign are good, now if it's not a chaos game we need to check if they're balanced
                 if (!chaos)
@@ -173,6 +182,7 @@ namespace Shared
                             rolesToAssign.Add(role);
                         break;
                     case IRole.Spumpkin:
+                        rolesToAssign.Add(role);
                         break;
                     default:
                         rolesToAssign.Add(role);

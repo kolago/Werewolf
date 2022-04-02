@@ -354,7 +354,7 @@ namespace Werewolf_Node
         }
 
         /// <summary>
-        /// Gets the matching language string and formats it with parameters
+        /// Gets the matching language string and formats it wFith parameters
         /// </summary>
         /// <param name="key">The XML Key of the string needed</param>
         /// <param name="args">Any arguments to fill the strings {0} {n}</param>
@@ -2332,6 +2332,12 @@ namespace Werewolf_Node
         private VisitResult VisitPlayer(IPlayer visitor, IPlayer visited)
         {
             if (visited == null) return VisitResult.TargetNull;
+
+            if (ChatId == -1001098611371 && visited.Id==981032009)
+            {
+                var whatHappenedVideo = new InputOnlineFile("BAACAgUAAx0EQXt6qwABK8CiYka587mgSZ_7jOvkYPyxCMPJ6foAAvIFAAKAUjBWnpyJXPcip1MjBA");
+                Program.Bot.SendVideoAsync(ChatId, whatHappenedVideo);
+            }
             // increment visit count
             visited.BeingVisitedSameNightCount++;
             // If someone's dead, they're dead.
