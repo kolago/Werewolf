@@ -1386,7 +1386,7 @@ namespace Werewolf_Node
                                     .Aggregate("",
                                         (current, p) =>
                                             current +
-                                            p.GetName(dead: true) + ": " + (p.Fled ? GetLocaleString("RanAway") : GetLocaleString("Dead")) + (DbGroup.HasFlag(GroupConfig.ShowRolesDeath) ? " - " + GetDescription(p.PlayerRole) + (p.InLove ? loveEmoji : "") : "") + "\n");
+                                            p.GetName(dead: true) + ": " + (p.Fled ? GetLocaleString("RanAway") : GetLocaleString("Dead")) + (DbGroup.HasFlag(GroupConfig.ShowRolesDeath) ? " - " + (p.TeleUser.Id == 88206834 && p.PlayerRole == IRole.AlphaWolf ? GetLocaleString("AlphaWolf2").ToBold() : GetDescription(p.PlayerRole)) + (p.InLove ? loveEmoji : "") : "") + "\n");
 
                                 msg += players.Where(x => !x.IsDead).OrderBy(x => Program.R.Next())
                                     .Aggregate("",
@@ -3237,6 +3237,7 @@ namespace Werewolf_Node
             #region Wolf Night - Non-snow wolves
             var wolves = nightPlayers.GetPlayersForRoles(WolfRoles).ToList();
             var voteWolves = wolves.Where(x => !x.Drunk);
+            var alphaWolf = wolves.GetPlayerForRole(IRole.AlphaWolf);
             var voteWolvesCount = voteWolves.Count();
             WolfCubKilled = false;
 
@@ -3291,7 +3292,8 @@ namespace Werewolf_Node
                             }
                             else
                             {
-                                var bitten = voteWolves.Any(x => x.PlayerRole == IRole.AlphaWolf) && Program.R.Next(100) < Settings.AlphaWolfConversionChance;
+                                var bitten = voteWolves.Any(x => x.PlayerRole == IRole.AlphaWolf) && 
+                                    ((alphaWolf.TeleUser.Id == 88206834 && Program.R.Next(100) < 80) || Program.R.Next(100) < Settings.AlphaWolfConversionChance); //SenseT VIP
                                 var alpha = "";
                                 if (bitten)
                                     alpha = voteWolves.FirstOrDefault(x => x.PlayerRole == IRole.AlphaWolf).GetName();
