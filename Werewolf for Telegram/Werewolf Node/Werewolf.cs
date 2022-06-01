@@ -77,7 +77,8 @@ namespace Werewolf_Node
             LoversWin,
             SKKilled,
             ArsonistWins,
-            BurnToDeath;
+            BurnToDeath,
+            RefugeeWin;
 
         public Dictionary<int, string> CustomWinMessages = new Dictionary<int, string>
         {
@@ -123,6 +124,7 @@ namespace Werewolf_Node
                 SKKilled = Settings.SKKilled.ToList();
                 ArsonistWins = Settings.ArsonistWins.ToList();
                 BurnToDeath = Settings.BurnToDeath.ToList();
+                RefugeeWin = Settings.RefugeeWin.ToList();
 
                 new Thread(GroupQueue).Start();
                 using (var db = new WWContext())
@@ -1605,6 +1607,9 @@ namespace Werewolf_Node
                     break;
                 case IRole.Arsonist:
                     p.Team = ITeam.Arsonist;
+                    break;
+                case IRole.Refugee:
+                    p.Team = ITeam.Village;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -4467,9 +4472,9 @@ namespace Werewolf_Node
                     return DoGameEnd(ITeam.NoOne);
                 case 1:
                     var p = alivePlayers.FirstOrDefault();
-                    if (p.PlayerRole == IRole.Tanner || p.PlayerRole == IRole.Sorcerer || p.PlayerRole == IRole.Thief || p.PlayerRole == IRole.Doppelgänger)
+                    if (p.PlayerRole == IRole.Doppelgänger)
                         return DoGameEnd(ITeam.NoOne);
-                    else
+                    else 
                         return DoGameEnd(p.Team);
                 case 2:
                     //check for lovers
@@ -4503,6 +4508,14 @@ namespace Werewolf_Node
                             }
                         }
                     }
+
+                    if (alivePlayers.Any(x => x.PlayerRole == IRole.Refugee))
+                    {
+                        var refugee = alivePlayers.FirstOrDefault(x => x.PlayerRole == IRole.Refugee);
+                        refugee.Team = ITeam.Refugee;
+                        return DoGameEnd(ITeam.Refugee);
+                    }
+
                     //check for SK
                     if (alivePlayers.Any(x => x.PlayerRole == IRole.SerialKiller))
                         return DoGameEnd(ITeam.SerialKiller);
@@ -4625,6 +4638,9 @@ namespace Werewolf_Node
                         if (team == ITeam.Tanner && !w.DiedLastNight)
                             continue;
 
+                        if (team == ITeam.Refugee && w.IsDead)
+                            continue;                            
+
                         w.Won = true;
                         var p = GetDBGamePlayer(w, db);
                         p.Won = true;
@@ -4652,15 +4668,15 @@ namespace Werewolf_Node
                                 if (new[] { IRole.Sorcerer, IRole.Thief, IRole.Doppelgänger }.All(x => alives.Any(y => y.PlayerRole == x)))
                                 {
                                     var doppelganger = alives.FirstOrDefault(x => x.PlayerRole == IRole.Doppelgänger);
-                                    var thief = alives.FirstOrDefault(x => x.PlayerRole == IRole.Thief);
+                                    var thf = alives.FirstOrDefault(x => x.PlayerRole == IRole.Thief);
                                     var sorc = alives.FirstOrDefault(x => x.PlayerRole == IRole.Sorcerer);
                                     
-                                    if (doppelganger != null && thief != null && sorc != null)
+                                    if (doppelganger != null && thf != null && sorc != null)
                                     {
                                         AddAchievement(sorc, AchievementsReworked.TimeToRetire);
                                         deathmessage = GetLocaleString("SorcererEnd", sorc.GetName()) + Environment.NewLine;
                                         deathmessage += Environment.NewLine + GetLocaleString("DoppelgangerEnd", doppelganger.GetName()) + Environment.NewLine;
-                                        deathmessage += Environment.NewLine + GetLocaleString("ThiefEnd", thief.GetName());
+                                        deathmessage += Environment.NewLine + GetLocaleString("ThiefEnd", thf.GetName());
                                     }
                                 }
                                 break;
@@ -4736,7 +4752,7 @@ namespace Werewolf_Node
                                 break;
 
                             case 1: // Tanner or sorcerer or thief or doppelgänger
-                                var lastone = alives.FirstOrDefault(x => x.PlayerRole == IRole.Sorcerer || x.PlayerRole == IRole.Thief || x.PlayerRole == IRole.Doppelgänger);
+                                var lastone = alives.FirstOrDefault(x => x.PlayerRole == IRole.Sorcerer || x.PlayerRole == IRole.Tanner || x.PlayerRole == IRole.Thief || x.PlayerRole == IRole.Doppelgänger);
                                 if (lastone != null)
                                 {
                                     if (lastone.PlayerRole == IRole.Tanner)
@@ -4780,6 +4796,11 @@ namespace Werewolf_Node
                         msg += GetLocaleString("TannerWins");
                         game.Winner = "Tanner";
                         SendWithQueue(msg, GetRandomImage(TannerWin));
+                        break;
+                    case ITeam.Refugee:
+                        msg += GetLocaleString("RefugeeWins");
+                        game.Winner = "Refugee";
+                        SendWithQueue(msg, GetRandomImage(RefugeeWin));
                         break;
                     case ITeam.Arsonist:
                         if (Players.Count(x => !x.IsDead) > 1)

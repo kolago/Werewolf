@@ -50,6 +50,7 @@ namespace Werewolf_Node
         public static List<string> SKKilled = new List<string> { "CgACAgQAAxkBAAEMJbNiI1MS2b0Oj5lvEfrd9tW-mzKG2AACfvgAAtUaZAfkONMPSvrUZyME", "CgACAgQAAxkBAAEMJbViI1MVazTopT6Mnc5qyD4cwSt2JgACNZ8AAu0XZAfNnl9CA3IZESME" };
         internal static List<string> ArsonistWins = new List<string> { "CgACAgQAAxkBAAEMJbFiI1LQGxTNpHsLYTScOu-i_DmkdAACuwADTz49U6-hYK8yMHfIIwQ" };
         internal static List<string> BurnToDeath = new List<string> { "CgACAgQAAxkBAAEMJaliI1HWT_uysyxvFsBDxkGdMQbSvwACqwADa589U8mfAAEy3NtopSME" };
+        internal static List<string> RefugeeWin = new List<string> { "CgACAgQAAxkBAAEMcrhijaxIcb0xthpFDl8pHTxFRNkDGwAC3AIAAho6RFNEvf5sUdXB3iQE" };
 
 #endif
         /* beta

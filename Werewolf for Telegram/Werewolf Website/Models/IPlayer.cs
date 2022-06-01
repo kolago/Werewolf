@@ -160,7 +160,7 @@ namespace Werewolf_Node.Models
         //halloween role
         Spumpkin,
         //and once again, new roles! :D
-        Troublemaker, Chemist, SnowWolf
+        Troublemaker, Chemist, SnowWolf, Refugee
     }
 
     public enum ITeam
@@ -168,7 +168,8 @@ namespace Werewolf_Node.Models
         Village, Cult, Wolf, Tanner,
         Neutral, SerialKiller, Lovers,
         SKHunter,
-        NoOne
+        NoOne,
+        Refugee
     }
 
     public enum KillMthd
