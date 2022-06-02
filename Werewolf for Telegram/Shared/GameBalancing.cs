@@ -40,7 +40,7 @@ namespace Shared
 
             var balanced = false;
             var attempts = 0;
-            var nonVgRoles = new[] { IRole.Cultist, IRole.SerialKiller, IRole.Tanner, IRole.Wolf, IRole.AlphaWolf, IRole.Sorcerer, IRole.WolfCub, IRole.Lycan, IRole.Thief, IRole.SnowWolf, IRole.Arsonist };
+            var nonVgRoles = new[] { IRole.Cultist, IRole.SerialKiller, IRole.Tanner, IRole.Wolf, IRole.AlphaWolf, IRole.Sorcerer, IRole.WolfCub, IRole.Lycan, IRole.Thief, IRole.SnowWolf, IRole.Arsonist, IRole.BlueBerry };
             var nonVgRolesWithArsonist = new[] { IRole.SerialKiller, IRole.Tanner, IRole.Wolf, IRole.AlphaWolf, IRole.WolfCub, IRole.Lycan, IRole.Thief};
 
             do
@@ -71,6 +71,12 @@ namespace Shared
                     rolesToAssign[towolf] = possibleWolves[R.Next(possibleWolves.Count)]; //choose randomly from WolfRoles
                 }
 
+                if (rolesToAssign.Contains(IRole.BlueBerry) && !rolesToAssign.Contains(IRole.Bulb))
+                {
+                    var vg = rolesToAssign.FindIndex(x => !nonVgRoles.Contains(x));
+                    rolesToAssign[vg] = IRole.Bulb;
+                }
+
                 //cult without CH -> add CH (unless the group REALLY doesn't want it...)
                 if (rolesToAssign.Contains(IRole.Cultist) && !rolesToAssign.Contains(IRole.CultistHunter)
                     && !disabledRoles.Contains(IRole.CultistHunter))
@@ -91,7 +97,7 @@ namespace Shared
                 //make sure that we have at least two teams
                 if (
                     rolesToAssign.Any(x => !nonVgRoles.Contains(x)) //make sure we have VGs
-                    && rolesToAssign.Any(x => nonVgRoles.Contains(x) && x != IRole.Sorcerer && x != IRole.Tanner && x != IRole.Thief) //make sure we have at least one enemy
+                    && rolesToAssign.Any(x => nonVgRoles.Contains(x) && x != IRole.Sorcerer && x != IRole.Tanner && x != IRole.Thief && x != IRole.BlueBerry) //make sure we have at least one enemy
                 )
                     balanced = true;
                 //else, redo role assignment. better to rely on randomness, than trying to fix it
@@ -304,6 +310,10 @@ namespace Shared
                     return 8;
                 case IRole.Spumpkin:
                     return 2;
+                case IRole.Bulb:
+                    return 1;
+                case IRole.BlueBerry:
+                    return 0;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(role), role, null);
             }

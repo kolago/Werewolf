@@ -143,7 +143,13 @@ namespace Shared
         Spumpkin = 8796093022208,
 
         [Role("👻")]
-        Refugee = 17592186044416
+        Refugee = 17592186044416,
+
+        [Role("💡")]
+        Bulb = 35184372088832,
+
+        [Role("🈹")]
+        BlueBerry = 70368744177664
     }
 
     public class RoleAttribute : Attribute

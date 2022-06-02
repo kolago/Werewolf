@@ -78,7 +78,8 @@ namespace Werewolf_Node
             SKKilled,
             ArsonistWins,
             BurnToDeath,
-            RefugeeWin;
+            RefugeeWin,
+            BlueberryWin;
 
         public Dictionary<int, string> CustomWinMessages = new Dictionary<int, string>
         {
@@ -125,6 +126,7 @@ namespace Werewolf_Node
                 ArsonistWins = Settings.ArsonistWins.ToList();
                 BurnToDeath = Settings.BurnToDeath.ToList();
                 RefugeeWin = Settings.RefugeeWin.ToList();
+                BlueberryWin = Settings.BlueberryWin.ToList();
 
                 new Thread(GroupQueue).Start();
                 using (var db = new WWContext())
@@ -1113,6 +1115,23 @@ namespace Werewolf_Node
                     player.Choice = -1;
                 }
 
+                if (qtype == QuestionType.Lover1 && player.PlayerRole == IRole.Bulb && player.CurrentQuestion.QType == QuestionType.Lover1)
+                {
+                    var lover1 = Players.FirstOrDefault(x => x.Id == player.Choice);
+
+                    if (lover1 != null)
+                    {
+                        var lovers = Players.Where(x => x.InLove).ToList();
+                        if (lovers.Contains(lover1))
+                        {
+                            lovers[0].InLove = false;
+                            lovers[1].InLove = false;
+                            Send(GetLocaleString("BulbChosen", lovers[0].GetName()), lovers[1].Id);
+                            Send(GetLocaleString("BulbChosen", lovers[1].GetName()), lovers[0].Id);
+                        }
+                    }
+                }
+
                 if (player.PlayerRole == IRole.Doppelgänger && player.CurrentQuestion.QType == QuestionType.RoleModel)
                 {
                     player.RoleModel = target.Id;
@@ -1582,6 +1601,8 @@ namespace Werewolf_Node
                 case IRole.Spumpkin:
                 case IRole.Augur:
                 case IRole.GraveDigger:
+                case IRole.Refugee:
+                case IRole.Bulb:
                     p.Team = ITeam.Village;
                     break;
                 case IRole.Doppelgänger:
@@ -1608,8 +1629,8 @@ namespace Werewolf_Node
                 case IRole.Arsonist:
                     p.Team = ITeam.Arsonist;
                     break;
-                case IRole.Refugee:
-                    p.Team = ITeam.Village;
+                case IRole.BlueBerry:
+                    p.Team = ITeam.BlueBerry;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -3725,6 +3746,7 @@ namespace Werewolf_Node
                                 case IRole.Doppelgänger:
                                 case IRole.Thief:
                                 case IRole.Spumpkin:
+                                case IRole.BlueBerry:
                                     ConvertToCult(target, voteCult, 0);
                                     break;
                                 case IRole.Oracle:
@@ -3744,6 +3766,9 @@ namespace Werewolf_Node
                                     break;
                                 case IRole.Augur:
                                     ConvertToCult(target, voteCult, Settings.AugurConversionChance);
+                                    break;
+                                case IRole.Bulb:
+                                    ConvertToCult(target, voteCult, Settings.BulbConversionChance);
                                     break;
                                 default:
                                     ConvertToCult(target, voteCult);
@@ -3899,6 +3924,65 @@ namespace Werewolf_Node
                 }
             }
 
+            #endregion
+
+            #region BlueBerry Night
+            var blueberry = Players.FirstOrDefault(x => x.PlayerRole == IRole.BlueBerry & !x.IsDead);
+            if (blueberry != null)
+            {
+                var target = Players.FirstOrDefault(x => x.Id == blueberry.Choice);
+                if (target != null)
+                {
+                    if (blueberry.PlayersVisited.Contains(target.TeleUser.Id))
+                        blueberry.HasRepeatedVisit = true;
+
+                    blueberry.PlayersVisited.Add(target.TeleUser.Id);
+                    if (target.PlayerRole == IRole.Bulb)
+                    {
+                        KillPlayer(target, KillMthd.Eat, killer: blueberry, isNight: true);
+                        Send(GetLocaleString("EatenByBlueBerry"), target.Id);
+                        DoGameEnd(ITeam.BlueBerry);
+                        return;
+                    }
+                }
+                else
+                {
+                    //stayed home D:
+                    blueberry.HasStayedHome = true;
+                }
+                if (!blueberry.IsDead)
+                {
+                    if (target != null)
+                    {
+                        target.BeingVisitedSameNightCount++;
+                        switch (target.PlayerRole)
+                        {
+                            case IRole.Wolf:
+                            case IRole.AlphaWolf:
+                            case IRole.WolfCub:
+                            case IRole.Lycan:
+                                KillPlayer(blueberry, KillMthd.VisitWolf, killer: target, diedByVisitingKiller: true, killedByRole: IRole.Wolf);
+                                Send(GetLocaleString("BlueBerryVisitWolf", target.GetName()), blueberry.Id);
+                                break;
+                            case IRole.SerialKiller:
+                                KillPlayer(blueberry, KillMthd.VisitKiller, killer: target, diedByVisitingKiller: true);
+                                Send(GetLocaleString("BlueBerryVisitKiller", target.GetName()), blueberry.Id);
+                                break;
+                            default:
+                                if (target.DiedLastNight && (WolfRoles.Contains(target.KilledByRole) || target.KilledByRole == IRole.SerialKiller || target.KilledByRole == IRole.Arsonist) && !target.DiedByVisitingKiller)
+                                {
+                                    KillPlayer(blueberry, KillMthd.VisitVictim, killer: target, diedByVisitingVictim: true, killedByRole: target.KilledByRole);
+                                }
+                                else
+                                {
+                                    if (!target.IsDead)
+                                        Send(GetLocaleString("BlueBerryVisitYou"), target.Id);
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
             #endregion
 
             #region Seer / Fool
@@ -4472,7 +4556,7 @@ namespace Werewolf_Node
                     return DoGameEnd(ITeam.NoOne);
                 case 1:
                     var p = alivePlayers.FirstOrDefault();
-                    if (p.PlayerRole == IRole.Doppelgänger)
+                    if (p.PlayerRole == IRole.Doppelgänger || p.PlayerRole == IRole.BlueBerry)
                         return DoGameEnd(ITeam.NoOne);
                     else 
                         return DoGameEnd(p.Team);
@@ -4480,8 +4564,8 @@ namespace Werewolf_Node
                     //check for lovers
                     if (alivePlayers.All(x => x.InLove))
                         return DoGameEnd(ITeam.Lovers);
-                    //check for Tanner + Sorcerer + Thief + Doppelgänger
-                    if (alivePlayers.Select(x => x.PlayerRole).All(x => new IRole[] { IRole.Sorcerer, IRole.Tanner, IRole.Thief, IRole.Doppelgänger }.Contains(x)))
+                    //check for Tanner + Sorcerer + Thief + Doppelgänger + BlueBerry
+                    if (alivePlayers.Select(x => x.PlayerRole).All(x => new IRole[] { IRole.Sorcerer, IRole.Tanner, IRole.Thief, IRole.Doppelgänger, IRole.BlueBerry }.Contains(x)))
                         return DoGameEnd(ITeam.NoOne);
                     //check for Hunter + SK / Wolf
                     if (alivePlayers.Any(x => x.PlayerRole == IRole.Hunter))
@@ -4639,7 +4723,10 @@ namespace Werewolf_Node
                             continue;
 
                         if (team == ITeam.Refugee && w.IsDead)
-                            continue;                            
+                            continue;
+
+                        if (team == ITeam.BlueBerry && w.IsDead)
+                            continue;
 
                         w.Won = true;
                         var p = GetDBGamePlayer(w, db);
@@ -4801,6 +4888,14 @@ namespace Werewolf_Node
                         msg += GetLocaleString("RefugeeWins");
                         game.Winner = "Refugee";
                         SendWithQueue(msg, GetRandomImage(RefugeeWin));
+                        break;
+                    case ITeam.BlueBerry:
+                        msg += GetLocaleString("BlueBerryWins");
+                        game.Winner = "BlueBerry";
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Console.WriteLine("BlueBerry Wins, sending win gif");
+                        Console.ForegroundColor = ConsoleColor.Gray;
+                        SendWithQueue(msg, GetRandomImage(BlueberryWin));
                         break;
                     case ITeam.Arsonist:
                         if (Players.Count(x => !x.IsDead) > 1)
@@ -5217,6 +5312,20 @@ namespace Werewolf_Node
                             qtype = QuestionType.Lover1;
                         }
                         else player.Choice = -1;
+                        break;
+                    case IRole.Bulb:
+                        if (GameDay != 1)
+                        {
+                            targets = Players.Where(x => !x.IsDead).ToList();
+                            msg = GetLocaleString("AskBulb");
+                            qtype = QuestionType.Lover1;
+                        }
+                        else player.Choice = -1;
+                        break;
+                    case IRole.BlueBerry:
+                        targets = Players.Where(x => !x.IsDead).ToList();
+                        msg = GetLocaleString("AskBlueberry");
+                        qtype = QuestionType.Swallow;
                         break;
                     case IRole.Thief:
                         if ((!ThiefFull && GameDay == 1) || ThiefFull)

@@ -51,6 +51,7 @@ namespace Werewolf_Node
         internal static List<string> ArsonistWins = new List<string> { "CgACAgQAAxkBAAEMJbFiI1LQGxTNpHsLYTScOu-i_DmkdAACuwADTz49U6-hYK8yMHfIIwQ" };
         internal static List<string> BurnToDeath = new List<string> { "CgACAgQAAxkBAAEMJaliI1HWT_uysyxvFsBDxkGdMQbSvwACqwADa589U8mfAAEy3NtopSME" };
         internal static List<string> RefugeeWin = new List<string> { "CgACAgQAAxkBAAEMcrhijaxIcb0xthpFDl8pHTxFRNkDGwAC3AIAAho6RFNEvf5sUdXB3iQE" };
+        internal static List<string> BlueberryWin = new List<string> { "CgADBAADVAADNWylUfrO0pi-43-SAg" };
 
 #endif
         /* beta
@@ -108,6 +109,7 @@ namespace Werewolf_Node
             ChemistSuccessChance = 50,
             GraveDiggerConversionChance = 30,
             AugurConversionChance = 40,
+            BulbConversionChance = 20,
 #else
             TannerChance = 40,
             FoolChance = 20,
