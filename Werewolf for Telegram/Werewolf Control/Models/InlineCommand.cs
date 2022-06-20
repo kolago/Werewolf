@@ -86,7 +86,13 @@ namespace Werewolf_Control.Models
                         var data = JsonConvert.DeserializeObject<CustomGifData>(json);
                         if (data.ShowBadge)
                         {
-                            if ((p.DonationLevel ?? 0) >= 100)
+                            if ((p.DonationLevel ?? 0) >= 600)
+                                Content += "Donation Level: 🏆";
+                            else if ((p.DonationLevel ?? 0) >= 300)
+                                Content += "Donation Level: 🎖";
+                            else if ((p.DonationLevel ?? 0) >= 150)
+                                Content += "Donation Level: 🏅";
+                            else if ((p.DonationLevel ?? 0) >= 100)
                                 Content += "Donation Level: 🥇";
                             else if ((p.DonationLevel ?? 0) >= 50)
                                 Content += "Donation Level: 🥈";
@@ -98,7 +104,13 @@ namespace Werewolf_Control.Models
                     }
                     else
                     {
-                        if ((p.DonationLevel ?? 0) >= 100)
+                        if ((p.DonationLevel ?? 0) >= 600)
+                            Content += "Donation Level: 🏆";
+                        else if ((p.DonationLevel ?? 0) >= 300)
+                            Content += "Donation Level: 🎖";
+                        else if ((p.DonationLevel ?? 0) >= 150)
+                            Content += "Donation Level: 🏅";
+                        else if ((p.DonationLevel ?? 0) >= 100)
                             Content += "Donation Level: 🥇";
                         else if ((p.DonationLevel ?? 0) >= 50)
                             Content += "Donation Level: 🥈";

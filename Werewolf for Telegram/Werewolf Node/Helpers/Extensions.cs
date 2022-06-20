@@ -65,7 +65,13 @@ namespace Werewolf_Node.Helpers
 
             if (player.GifPack?.ShowBadge ?? false || (player.GifPack == null && player.DonationLevel >= 10))
             {
-                if (player.DonationLevel >= 100)
+                if (player.DonationLevel >= 600)
+                    end += " 🏆";
+                else if (player.DonationLevel >= 300)
+                    end += " 🎖";
+                else if (player.DonationLevel >= 150)
+                    end += " 🏅";
+                else if (player.DonationLevel >= 100)
                     end += " 🥇";
                 else if (player.DonationLevel >= 50)
                     end += " 🥈";

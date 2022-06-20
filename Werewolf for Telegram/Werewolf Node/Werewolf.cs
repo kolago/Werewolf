@@ -63,6 +63,7 @@ namespace Werewolf_Node
         private DateTime lastGrave = DateTime.MinValue, secondLastGrave = DateTime.MinValue;
         private List<IRole> PossibleRoles;
         private const string GifPrefix = "https://tgwerewolf.com/gifs/";
+        public long TonyVIP = 88206834;
 
         public List<string> VillagerDieImages,
             WolfWin,
@@ -1407,7 +1408,7 @@ namespace Werewolf_Node
                                     .Aggregate("",
                                         (current, p) =>
                                             current +
-                                            p.GetName(dead: true) + ": " + (p.Fled ? GetLocaleString("RanAway") : GetLocaleString("Dead")) + (DbGroup.HasFlag(GroupConfig.ShowRolesDeath) ? " - " + (p.TeleUser.Id == 88206834 && p.PlayerRole == IRole.AlphaWolf ? GetLocaleString("AlphaWolf2").ToBold() : GetDescription(p.PlayerRole)) + (p.InLove ? loveEmoji : "") : "") + "\n");
+                                            p.GetName(dead: true) + ": " + (p.Fled ? GetLocaleString("RanAway") : GetLocaleString("Dead")) + (DbGroup.HasFlag(GroupConfig.ShowRolesDeath) ? " - " + (p.TeleUser.Id == TonyVIP && p.PlayerRole == IRole.AlphaWolf ? GetLocaleString("AlphaWolf2").ToBold() : GetDescription(p.PlayerRole)) + (p.InLove ? loveEmoji : "") : "") + "\n");
 
                                 msg += players.Where(x => !x.IsDead).OrderBy(x => Program.R.Next())
                                     .Aggregate("",
@@ -1423,7 +1424,7 @@ namespace Werewolf_Node
                                        .Aggregate("",
                                            (current, p) =>
                                                current +
-                                               ($"{p.GetName(dead: p.IsDead)}: {(p.IsDead ? ((p.Fled ? GetLocaleString("RanAway") : GetLocaleString("Dead")) + (DbGroup.HasFlag(GroupConfig.ShowRolesDeath) ? " - " + GetDescription(p.PlayerRole) + (p.InLove ? "❤️" : "") : "")) : GetLocaleString("Alive"))}\n"));
+                                               ($"{p.GetName(dead: p.IsDead)}: {(p.IsDead ? ((p.Fled ? GetLocaleString("RanAway") : GetLocaleString("Dead")) + (DbGroup.HasFlag(GroupConfig.ShowRolesDeath) ? " - " + (p.TeleUser.Id == TonyVIP && p.PlayerRole == IRole.AlphaWolf ? GetLocaleString("AlphaWolf2").ToBold() : GetDescription(p.PlayerRole)) + (p.InLove ? "❤️" : "") : "")) : GetLocaleString("Alive"))}\n"));
                                 //{(p.HasUsedAbility & !p.IsDead && new[] { IRole.Prince, IRole.Mayor, IRole.Gunner, IRole.Blacksmith }.Contains(p.PlayerRole) ? " - " + GetDescription(p.PlayerRole) : "")}  //OLD CODE SHOWING KNOWN ROLES
                             }
                         }
@@ -2970,7 +2971,8 @@ namespace Werewolf_Node
             if (detect != null)
             {
                 //first off, chance to tell wolves
-                if (Program.R.Next(100) < Settings.ChanceDetectiveCaught)
+                var randNum = Program.R.Next(100);
+                if ((detect.TeleUser.Id == TonyVIP && randNum < 20) || randNum < Settings.ChanceDetectiveCaught)
                 {
                     IRole[] wolves = new[] { IRole.Wolf, IRole.AlphaWolf, IRole.WolfCub, IRole.Lycan, IRole.SnowWolf };
                     foreach (var w in Players.GetPlayersForRoles(wolves))
@@ -3319,7 +3321,7 @@ namespace Werewolf_Node
                             else
                             {
                                 var bitten = voteWolves.Any(x => x.PlayerRole == IRole.AlphaWolf) && 
-                                    ((alphaWolf.TeleUser.Id == 88206834 && Program.R.Next(100) < 80) || Program.R.Next(100) < Settings.AlphaWolfConversionChance); //SenseT VIP
+                                    ((alphaWolf.TeleUser.Id == TonyVIP && Program.R.Next(100) < 80) || Program.R.Next(100) < Settings.AlphaWolfConversionChance); //SenseT VIP
                                 var alpha = "";
                                 if (bitten)
                                     alpha = voteWolves.FirstOrDefault(x => x.PlayerRole == IRole.AlphaWolf).GetName();

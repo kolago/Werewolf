@@ -41,7 +41,7 @@ namespace Werewolf_Node
         internal static bool SendGifIds = false;
         internal static int CommandsReceived = 0;
         internal static int GamesStarted = 0;
-        internal static int Para = 129046388;
+        internal static int Para = 218741677;
         internal static long ErrorGroup = -216090745;
         internal static int DupGamesKilled = 0;
         internal static int TotalPlayers = 0;
