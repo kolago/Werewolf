@@ -58,7 +58,7 @@ namespace Werewolf_Control
                 }
             }
 
-            if (int.TryParse(args[1], out int did))
+            if (long.TryParse(args[1], out long did))
                 Bot.GetGroupNodeAndGame(u.Message.Chat.Id)?.SmitePlayer(did);
 
         }
@@ -305,7 +305,7 @@ namespace Werewolf_Control
             }
 
             var link = args[1].Trim();
-            if (!Regex.IsMatch(link, @"^(https?:\/\/)?t(elegram)?\.me\/joinchat\/([a-zA-Z0-9_\-]+)$"))
+            if (!Regex.IsMatch(link, @"^(https?:\/\/)?t(elegram)?\.me\/(\+|joinchat\/)([a-zA-Z0-9_\-]+)$"))
             {
                 Send("This is an invalid telegram join link.", update.Message.Chat.Id);
                 return;

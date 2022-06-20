@@ -42,6 +42,7 @@ namespace Werewolf_Control
         internal static int? xsollaProjId = 0;
         internal static readonly HttpClient xsollaClient = new HttpClient();
         internal const string MasterLanguage = "English.xml";
+        internal static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         static void Main(string[] args)
         {
             System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
@@ -164,6 +165,10 @@ namespace Werewolf_Control
 
         public static void Log(string s, bool error = false)
         {
+            if (error)
+                log.Error(s);
+            else
+                log.Info(s);
             //while (_writingInfo)
             //    Thread.Sleep(50);
             //Console.CursorTop = Math.Max(Console.CursorTop, 6 + Bot.Nodes.Count + 1);
@@ -299,8 +304,8 @@ namespace Werewolf_Control
                     var TotalGames = Nodes.Sum(x => x.TotalGames);
                     //var NumThreads = Process.GetCurrentProcess().Threads.Count;
                     var Uptime = DateTime.UtcNow - Bot.StartTime;
-                    var MessagesRx = Bot.MessagesProcessed;
-                    var CommandsRx = Bot.CommandsReceived;
+                    var MessagesRx = Bot.MessagesReceived;
+                    var CommandsRx = Bot.MessagesProcessed;
                     var MessagesTx = Nodes.Sum(x => x.MessagesSent) + Bot.MessagesSent;
 
                     if (CurrentGames > MaxGames)

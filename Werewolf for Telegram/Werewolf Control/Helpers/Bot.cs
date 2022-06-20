@@ -19,6 +19,7 @@ using Telegram.Bot.Extensions.Polling;
 using Werewolf_Control.Handler;
 using Werewolf_Control.Models;
 using Telegram.Bot.Exceptions;
+using Newtonsoft.Json;
 
 namespace Werewolf_Control.Helpers
 {
@@ -105,7 +106,7 @@ namespace Werewolf_Control.Helpers
                 }
             }
 
-            ReceiverOptions receiverOptions = new ReceiverOptions() { AllowedUpdates = { } };
+            ReceiverOptions receiverOptions = new ReceiverOptions() { AllowedUpdates = new[] { UpdateType.Message, UpdateType.MyChatMember, UpdateType.InlineQuery, UpdateType.ChosenInlineResult, UpdateType.CallbackQuery }, Limit = 100, ThrowPendingUpdates = true };
             var cts = new CancellationTokenSource();
 
 
@@ -126,13 +127,17 @@ namespace Werewolf_Control.Helpers
             //Api.OnReceiveGeneralError += ApiOnOnReceiveGeneralError;
             //Api.OnStatusChanged += ApiOnStatusChanged;
             //Api.UpdatesReceived += ApiOnUpdatesReceived;
-            Api.ReceiveAsync(null, cts.Token);
+            Api.ReceiveAsync(receiverOptions, cts.Token);
             Api.OnMakingApiRequest += Api_OnMakingApiRequest;
         }
 
         private static ValueTask Api_OnMakingApiRequest(ITelegramBotClient botClient, ApiRequestEventArgs args, CancellationToken cancellationToken = default(CancellationToken))
         {
             var method = args.MethodName.ToLower();
+            if (method.StartsWith("getUpdate"))
+            {
+                Program.Log("Getting updates");
+            }
             if (method.StartsWith("send") || method.StartsWith("edit"))
             {
                 MessagesSent++;
@@ -147,50 +152,63 @@ namespace Werewolf_Control.Helpers
         private static CancellationTokenSource _receivingCancellationTokenSource;
 #pragma warning disable AsyncFixer03 // Avoid fire & forget async void methods
         private static async void ReceiveAsync(this ITelegramBotClient client,
-            UpdateType[] allowedUpdates,
+            ReceiverOptions options,
             CancellationToken cancellationToken)
         {
+            var sw = new Stopwatch();
             IsReceiving = true;
             while (!cancellationToken.IsCancellationRequested)
             {
                 var timeout = 30;
                 var updates = EmptyUpdates;
-
+                sw.Reset();
                 try
                 {
+                    //let's see if Telegram is responding slowly....
+                    Program.log.Info("Starting a getUpdates request");
+                    sw.Start();
                     updates = await client.GetUpdatesAsync(
                         MessageOffset,
                         timeout: timeout,
-                        allowedUpdates: allowedUpdates,
+                        limit: options.Limit,
+                        allowedUpdates: options.AllowedUpdates,
                         cancellationToken: cancellationToken
                     ).ConfigureAwait(false);
+                    sw.Stop();
+                    Program.log.Info($"Time to receive updates: {sw.ElapsedMilliseconds}ms");
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException opException)
                 {
+                    Program.log.Error("Error getting updates", opException);
                 }
                 catch (ApiRequestException apiException)
                 {
+                    Program.log.Error("Error getting updates", apiException);
                     OnReceiveError?.Invoke("receiver", apiException);
                 }
                 catch (Exception generalException)
                 {
+                    Program.log.Error("Error getting updates", generalException);
                     OnReceiveGeneralError?.Invoke("receiver", generalException);
                 }
 
                 try
                 {
+                    Program.log.Info($"Received {updates.Length} updates, processing");
                     MessagesReceived += updates.Length;
-                    foreach (var update in updates)
+                    new Task(() =>
                     {
-                        new Task(() =>
+                        foreach (var update in updates)
                         {
                             OnUpdateReceived(new UpdateEventArgs(update));
-                        }).Start();
-                        MessageOffset = update.Id + 1;
-                    }
+                        }
+                    }).Start();
+                    if (updates.Length > 0)
+                        MessageOffset = updates[updates.Length - 1].Id + 1;
                 }
-                catch
+                catch (Exception e)
                 {
+                    Program.log.Error("Error getting updates", e);
                     IsReceiving = false;
                     throw;
                 }
@@ -217,11 +235,24 @@ namespace Werewolf_Control.Helpers
         /// <param name="e">The <see cref="UpdateEventArgs"/> instance containing the event data.</param>
         static void OnUpdateReceived(UpdateEventArgs e)
         {
-            OnUpdate?.Invoke("receiver", e);
+            if (e.Update.EditedMessage != null) return;
+            if (e.Update.Message?.ViaBot != null && e.Update.Message.Chat.Type != ChatType.Private) return;
+            if (e.Update.Message?.Document != null && e.Update.Message.Chat.Type != ChatType.Private) return;
+            if (e.Update.Message?.Audio != null) return;
+            if (e.Update.Message?.Caption != null && e.Update.Message.Chat.Type != ChatType.Private) return;
+            if (e.Update.Message?.Location != null) return;
+            if (e.Update.Message?.Game != null) return;
+            if (e.Update.Message?.Photo != null) return;
+            if (e.Update.Message?.Sticker != null) return;
+            if (e.Update.Message?.Video != null) return;
+            if (e.Update.Message?.Voice != null) return;
+            //Program.log.Info(JsonConvert.SerializeObject(e.Update));
+            //OnUpdate?.Invoke("receiver", e);
 
             switch (e.Update.Type)
             {
                 case UpdateType.Message:
+
                     //OnMessage?.Invoke("receiver", e);
                     UpdateHandler.UpdateReceived(Api, e.Update);
                     break;
@@ -241,7 +272,7 @@ namespace Werewolf_Control.Helpers
                     break;
 
                 case UpdateType.EditedMessage:
-                    OnMessageEdited?.Invoke("receiver", e);
+                    //OnMessageEdited?.Invoke("receiver", e);
                     break;
             }
         }
@@ -309,51 +340,51 @@ namespace Werewolf_Control.Helpers
         //    }
         //}
 
-        private static async Task ApiOnOnMessage(ITelegramBotClient bot, Update update, CancellationToken token)
-        {
-            new Task(() =>
-            {
-                switch (update.Type)
-                {
-                    // UpdateType.Unknown:
-                    // UpdateType.ChannelPost:
-                    // UpdateType.EditedChannelPost:
-                    // UpdateType.ShippingQuery:
-                    // UpdateType.PreCheckoutQuery:
-                    // UpdateType.Poll:
-                    case UpdateType.InlineQuery:
-                        UpdateHandler.InlineQueryReceived(bot, update.InlineQuery);
-                        break;
-                    case UpdateType.CallbackQuery:
-                        UpdateHandler.CallbackReceived(bot, update.CallbackQuery);
-                        break;
-                    default:
-                        UpdateHandler.UpdateReceived(bot, update);
-                        break;
-                        //Api.OnInlineQuery += UpdateHandler.InlineQueryReceived;
-                        //Api.OnUpdate += UpdateHandler.UpdateReceived;
-                        //Api.OnCallbackQuery += UpdateHandler.CallbackReceived;
-                        //Api.OnReceiveError += ApiOnReceiveError;
-                        ////Api.OnReceiveGeneralError += ApiOnOnReceiveGeneralError;
-                        ////Api.OnStatusChanged += ApiOnStatusChanged;
-                        ////Api.UpdatesReceived += ApiOnUpdatesReceived;
-                        //UpdateType.Message            => BotOnMessageReceived(botClient, update.Message!),
-                        //UpdateType.EditedMessage      => BotOnMessageReceived(botClient, update.EditedMessage!),
-                        //UpdateType.CallbackQuery      => BotOnCallbackQueryReceived(botClient, update.CallbackQuery!),
-                        //UpdateType.InlineQuery        => BotOnInlineQueryReceived(botClient, update.InlineQuery!),
-                        //UpdateType.ChosenInlineResult => BotOnChosenInlineResultReceived(botClient, update.ChosenInlineResult!),
-                        //_                             => UnknownUpdateHandlerAsync(botClient, update)
-                }
-            }).Start();
-            //try
-            //{
-            //    await handler;
-            //}
-            //catch (Exception exception)
-            //{
-            //    await HandleErrorAsync(botClient, exception, cancellationToken);
-            //}
-        }
+        //private static async Task ApiOnOnMessage(ITelegramBotClient bot, Update update, CancellationToken token)
+        //{
+        //    new Task(() =>
+        //    {
+        //        switch (update.Type)
+        //        {
+        //            // UpdateType.Unknown:
+        //            // UpdateType.ChannelPost:
+        //            // UpdateType.EditedChannelPost:
+        //            // UpdateType.ShippingQuery:
+        //            // UpdateType.PreCheckoutQuery:
+        //            // UpdateType.Poll:
+        //            case UpdateType.InlineQuery:
+        //                UpdateHandler.InlineQueryReceived(bot, update.InlineQuery);
+        //                break;
+        //            case UpdateType.CallbackQuery:
+        //                UpdateHandler.CallbackReceived(bot, update.CallbackQuery);
+        //                break;
+        //            default:
+        //                UpdateHandler.UpdateReceived(bot, update);
+        //                break;
+        //                //Api.OnInlineQuery += UpdateHandler.InlineQueryReceived;
+        //                //Api.OnUpdate += UpdateHandler.UpdateReceived;
+        //                //Api.OnCallbackQuery += UpdateHandler.CallbackReceived;
+        //                //Api.OnReceiveError += ApiOnReceiveError;
+        //                ////Api.OnReceiveGeneralError += ApiOnOnReceiveGeneralError;
+        //                ////Api.OnStatusChanged += ApiOnStatusChanged;
+        //                ////Api.UpdatesReceived += ApiOnUpdatesReceived;
+        //                //UpdateType.Message            => BotOnMessageReceived(botClient, update.Message!),
+        //                //UpdateType.EditedMessage      => BotOnMessageReceived(botClient, update.EditedMessage!),
+        //                //UpdateType.CallbackQuery      => BotOnCallbackQueryReceived(botClient, update.CallbackQuery!),
+        //                //UpdateType.InlineQuery        => BotOnInlineQueryReceived(botClient, update.InlineQuery!),
+        //                //UpdateType.ChosenInlineResult => BotOnChosenInlineResultReceived(botClient, update.ChosenInlineResult!),
+        //                //_                             => UnknownUpdateHandlerAsync(botClient, update)
+        //        }
+        //    }).Start();
+        //    //try
+        //    //{
+        //    //    await handler;
+        //    //}
+        //    //catch (Exception exception)
+        //    //{
+        //    //    await HandleErrorAsync(botClient, exception, cancellationToken);
+        //    //}
+        //}
 
         //private static void ApiOnUpdatesReceived(object sender, UpdateEventArgs updateEventArgs)
         //{
